@@ -20,7 +20,7 @@ div.group{
 
 table th{
 	border: 1px solid #909090;
-	padding: 5px;
+	padding: 5px 0;
 	width: 120px;
 	height: 90px;
 	vertical-align: top;
@@ -40,11 +40,24 @@ span.event{
 	font-weight: bold;
 	color: white;
 	background: #009bcc;
-	border-radius: 4px;
 	padding: 2px;
 	width: 100%;
 	float: left;
 	text-align: left;
+}
+
+span.event.first{
+	border-bottom-left-radius: 4px;
+	border-top-left-radius: 4px;
+}
+
+span.event.last{
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+
+span.event.single{
+	border-radius: 4px;
 }
 
 /*############## ADD EVENT section ################################*/

@@ -75,7 +75,7 @@
 				else
 					style = "";
 
-            	html += "<th data-date='" + full + "'" + style + ">" + dd + "</th>";
+            	html += "<th data-date='" + full + "'" + style + ">" + dd + "&nbsp;</th>";
 
             	if (j % 7 == 0)
             		html += "</tr>";
@@ -116,11 +116,22 @@
         		to = CalendarEvent.to != null ? CalendarEvent.to.yyyymmdd() : '',
         		title = CalendarEvent.title;
 
-        	if(from === to) {
-	        	angular.element('th[data-date="'+ from +'"]').append("<span class='event' ng-click='showEvent()'>"+ title + "</span>");
-       		} else{
-	        	angular.element('th[data-date="'+ from +'"]').append("<span class='event' ng-click='showEvent()'>"+ title + "</span>");
-    	    	angular.element('th[data-date="'+ to +'"]').append("<span class='event' ng-click='showEvent()'>"+ title + "</span>");
+        	if(from === to || !to) {
+	        	angular.element('th[data-date="'+ from +'"]').append("<span class='event single' ng-click='showEvent()'>"+ title + "</span>");
+       		} else{       			
+       			var diff = (!CalendarEvent.to) ? -1 : (CalendarEvent.to.getDate() - CalendarEvent.from.getDate()) - 1,
+       				yyyy = (CalendarEvent.from.getFullYear()).toString(),
+       				mm = (CalendarEvent.from.getMonth()+1).toString();       			
+
+	        	angular.element('th[data-date="'+ from +'"]').append("<span class='event first' ng-click='showEvent()'>"+ title + "</span>");
+
+	        	if(diff > -1){
+	        		var aux = yyyy + "-" + (mm[1]?mm:"0"+mm[0]) + "-";
+	        		for(var i = CalendarEvent.from.getDate() + 1; i < CalendarEvent.to.getDate(); i++)
+	            		angular.element('th[data-date="'+ aux + i +'"]').append("<span class='event' ng-click='showEvent()'>"+ title + "</span>");
+	        	}
+
+    	    	angular.element('th[data-date="'+ to +'"]').append("<span class='event last' ng-click='showEvent()'>"+ title + "</span>");
 	        }
     	};
 
