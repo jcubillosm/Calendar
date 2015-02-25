@@ -20,21 +20,20 @@
       <button class="btn-oldstyle" ng-click="calendar.setMonth(2)">Next ></button>
       <h2>{{monthName}} {{year}}</h2>
       <table calendartable></table>
+      <calendar-events/>
       <div class="event"></div>
     </div>
     <div class="add_event">
       <h2>Add Event</h2>
       <form ng-controller="FormController" name="CalendarEvent" novalidate>
         <label>Title</label>
-        <input type="text" ng-model="CalendarEvent.title" required/>
+        <input type="text" ng-model="CalendarEvent.title" maxlength="30" required/>
         <label>From:</label>
         <input type="date" ng-model="CalendarEvent.from" required/>
         <label>To:</label>
         <input type="date" ng-model="CalendarEvent.to"/>
         <input class="btn-custom" type="submit" text="Add event" ng-click="update(CalendarEvent)">
       </form>
-      <pre>form = {{CalendarEvent | json}}</pre>
-      <pre>master = {{master | json}}</pre>
     </div>
 </body>
 </html>

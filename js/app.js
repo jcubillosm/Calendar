@@ -10,6 +10,9 @@
 		this.weekDays = [{name:'Mon'}, {name:'Tue'}, {name:'Wed'}, {name:'Thu'}, {name:'Fri'}, {name:'Sat'}, {name:'Sun'}];
 		scope.year = yearNum;
 		scope.monthName = monthNames[(monthNum >= 12? 0 : monthNum)];
+		scope.saved = localStorage.getItem('data');
+        scope.local = (localStorage.getItem('data')!==null) ? JSON.parse(scope.saved) : [];
+        localStorage.setItem('data', JSON.stringify(scope.local));
 
 		/*Gives functionality to "Next" and "Previous" buttons
 			...changing current month and year values*/
@@ -84,7 +87,6 @@
             return html;
         };
 
-
       	return {
             link:function($scope, $element, attrs) {
             	// Watching monthName in our scope. When $scope.monthName changes, view is updated
@@ -101,49 +103,93 @@
         }
 	});
 
+	//Custom directive to compile the local storage events
+	app.directive('calendarEvents', function($compile) {
+		var appendEvents = function(storage, index) {
+			for(var i = index; i < storage.length; i++){
+	            var from = storage[i].start;
+	        		to = storage[i].end;
+	        		title = storage[i].text;
+
+	        	if(from === to || !to) {
+		        	angular.element('th[data-date="'+ from +'"]').append("<span class='event single' ng-click='showEvent()' style='background:"+getRandomEventColour()+";'>"+ title + "</span>");
+	       		} else{
+	       			var date1 = new Date(from),
+	       				date2 = new Date(to),
+						timeDiff = Math.abs(date2.getTime() - date1.getTime()),
+						diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1,
+						backColor = getRandomEventColour();
+
+		        	angular.element('th[data-date="'+ from +'"]').append("<span class='event first' ng-click='showEvent()' style='background:"+backColor+";'>"+ title + "</span>");
+
+		        	if(diffDays > 0){
+		        		var yyyy = (date1.getFullYear()).toString(),
+		       				mm = (date1.getMonth()+1).toString(),
+		       				aux = yyyy + "-" + (mm[1]?mm:"0"+mm[0]) + "-";
+
+		        		for(var j = date1.getDate() + 1; j < date2.getDate(); j++)
+		            		angular.element('th[data-date="'+ aux + j +'"]').append("<span class='event empty' ng-click='showEvent()' style='background:"+backColor+";'/>"); //"+ title + "</span>");
+		        	}
+
+	    	    	angular.element('th[data-date="'+ to +'"]').append("<span class='event empty last' ng-click='showEvent()' style='background:"+backColor+";'/>"); //"+ title + "</span>");
+		        }
+	    	}
+        };
+
+      	return {
+            link:function($scope, $element, attrs) {
+            	var firstTime = true;
+            	$scope.$watch('local', function() {	                
+					var linkToDOM, content;
+
+					if(firstTime){						
+						linkToDOM = $compile(appendEvents($scope.local, 0));
+						firstTime = false;
+					}else
+						linkToDOM = $compile(appendEvents($scope.local, $scope.local.length-1));
+
+					content = linkToDOM($scope);
+		            $element.append(content);
+		        }, true);
+           }
+        }
+	});
+
 	//Controller for "Add Event" form
 	app.controller('FormController', ['$scope', '$element', function($scope, $element) {
-      	$scope.master = {};
     	angular.element('input[type="date"]').attr({
 			min: new Date().yyyymmdd(),
 			value:'2015-02-15'
 		});
-
-      	//Puts the <span> event into the calendar on submit
+		    
+      	//Updates the events on form submit, it saves the new event into local storage
       	$scope.update = function(CalendarEvent) {
-        	$scope.master = angular.copy(CalendarEvent);
         	var from = CalendarEvent.from != null ? CalendarEvent.from.yyyymmdd() : '',
         		to = CalendarEvent.to != null ? CalendarEvent.to.yyyymmdd() : '',
         		title = CalendarEvent.title;
 
-        	if(from === to || !to) {
-	        	angular.element('th[data-date="'+ from +'"]').append("<span class='event single' ng-click='showEvent()'>"+ title + "</span>");
-       		} else{       			
-       			var diff = (!CalendarEvent.to) ? -1 : (CalendarEvent.to.getDate() - CalendarEvent.from.getDate()) - 1,
-       				yyyy = (CalendarEvent.from.getFullYear()).toString(),
-       				mm = (CalendarEvent.from.getMonth()+1).toString();       			
-
-	        	angular.element('th[data-date="'+ from +'"]').append("<span class='event first' ng-click='showEvent()'>"+ title + "</span>");
-
-	        	if(diff > -1){
-	        		var aux = yyyy + "-" + (mm[1]?mm:"0"+mm[0]) + "-";
-	        		for(var i = CalendarEvent.from.getDate() + 1; i < CalendarEvent.to.getDate(); i++)
-	            		angular.element('th[data-date="'+ aux + i +'"]').append("<span class='event' ng-click='showEvent()'>"+ title + "</span>");
-	        	}
-
-    	    	angular.element('th[data-date="'+ to +'"]').append("<span class='event last' ng-click='showEvent()'>"+ title + "</span>");
-	        }
+	        //save data localy in localStorage
+	        $scope.local.push({text: title,	start: from, end: to});
+			localStorage.setItem('data', JSON.stringify($scope.local));
     	};
-
-      	$scope.reset = function() {
-        	$scope.CalendarEvent = angular.copy($scope.master);
-      	};
-
-      	$scope.reset();
     }]);
 
+	//Returns a color for the event background
+	function getRandomEventColour () {
+		var colourArray = ['#009bcc', '#cc3100', '#00cc97', '#9700cc', '#cc9700', '#1f5cb1', '#646472'],
+			latestColour = localStorage.getItem('colourIndex');
+
+		if(latestColour < colourArray.length - 1)
+			latestColour ++;
+		else
+			latestColour = 0;
+
+		localStorage.setItem('colourIndex', JSON.stringify(latestColour));
+		return colourArray[latestColour];
+	};
+
 	//Returns an Array containing all days of a specific month
-	function getMonthDays (month, year){
+	function getMonthDays (month, year) {
 	   	var date = new Date(year, month, 1);
 	    var array = [];
 	    while (date.getMonth() === month) {
@@ -155,7 +201,7 @@
 
 	/*Returns the week day (0-6) of the first day of the current month 
 		so we know which day of the calendar the month starts*/
-	function getWeekDay (month, year){
+	function getWeekDay (month, year) {
 	    var d = new Date(year, month, 1).getDay();
 		if(d === 0) d = 7;
 		d--;
@@ -164,7 +210,7 @@
 
 	//Compares today's day with the passed value which is a date in format 'yyyy-MM-dd'
 	//... and returns true if they are the same
-	function Today (value){
+	function Today (value) {
 		var todayDay = ("0" + new Date().getDate()).slice(-2), //01-31
 		    todayMonth = ("0" + (new Date().getMonth() + 1)).slice(-2), //01-12
 		    todayYear = new Date().getFullYear(), //four digits
