@@ -15,7 +15,7 @@
         localStorage.setItem('data', JSON.stringify(scope.local));
 
 		/*Gives functionality to "Next" and "Previous" buttons
-			...changing current month and year values*/
+			changing current month and year values*/
 		this.setMonth = function(buttonID){
 			if(buttonID === 2){ //Increase month and/or year
 				monthNum++;
@@ -33,6 +33,10 @@
 			scope.monthName = monthNames[(monthNum >= 12? 0 : monthNum)];
 			scope.year = yearNum;
 		};
+
+		scope.showEvent = function(){
+			console.log("Test");
+		};
 	});
 
 	app.filter('range', function() {
@@ -46,7 +50,7 @@
 
 	//Custom directive to compile the calendar table
 	app.directive('calendartable', function($compile) {
-		var generateCalendarTable = function(month, year) {
+		var generateCalendarTable = function(storage, month, year) {
             var i = 0, 
             	j = 0,     	
             	dd = 0,
@@ -56,6 +60,7 @@
             	style = "",
             	days = getMonthDays(month, year),
             	weekDayNum = getWeekDay(monthNum, yearNum),
+            	eventArray = [],
             	html = "<tr><th id='week' ng-repeat='weekDay in calendar.weekDays'>{{weekDay.name}}</th></tr><tr><th ng-repeat='n in [] | range:" + weekDayNum + "'></th>";
 
             	/*//if the first day starts on monday then we need and extra line at the top
@@ -78,79 +83,54 @@
 				else
 					style = "";
 
-            	html += "<th data-date='" + full + "'" + style + ">" + dd + "&nbsp;</th>";
+            	html += "<th data-date='" + full + "'" + style + ">" + dd + "&nbsp;";
+
+            	eventArray = getDayEvents(storage, dd, month, year);            	
+            	//Include all the events in the calendar
+            	if(!!eventArray.length){ //is eventArray length is > 0 then it returns a truthy element so !! returns true
+            		for(var cont = 0; cont < eventArray.length; cont++){
+            			switch (eventArray[cont].position){
+            				case 'solo':
+            					html += "<span class='event single' ng-click='showEvent()' style='background:"+eventArray[cont].storage.backColor+";'>"+ eventArray[cont].storage.text + "</span>";
+            				break;
+            				case 'start':
+            					html += "<span class='event first' ng-click='showEvent()' style='background:"+eventArray[cont].storage.backColor+";'>"+ eventArray[cont].storage.text + "</span>";
+            				break;
+            				case 'centre':
+            					html += "<span class='event empty' ng-click='showEvent()' style='background:"+eventArray[cont].storage.backColor+";'/>";
+            				break;
+            				case 'end':
+            					html += "<span class='event empty last' ng-click='showEvent()' style='background:"+eventArray[cont].storage.backColor+";'/>";
+            				break;
+            			}
+            		}
+            	}
+
+            	html += "</th>";
 
             	if (j % 7 == 0)
             		html += "</tr>";
             }
-            console.log(j);
+            //console.log(j);
             return html;
         };
 
       	return {
             link:function($scope, $element, attrs) {
-            	// Watching monthName in our scope. When $scope.monthName changes, view is updated
-                $scope.$watch('monthName', function() {
-	            	// Compile the HTML template and attach to calendartable directive
-	                var linkToDOM = $compile(generateCalendarTable(monthNum, yearNum));
+            	/*WatchGroup and watchCollection (current AngularJS v1.3.7) don´t support a deep watch that I need to 
+            		catch the differences in 'local', so this is the "hack" way: registering an anonymous deep watcher
+            		with array of values being passed in from the watch function*/
+				$scope.$watch(function(){
+				    return ['local', 'monthName'].map(angular.bind($scope, $scope.$eval));
+				}, function(newV){
+			  		// Compile the HTML template and attach to calendartable directive
+                	var linkToDOM = $compile(generateCalendarTable($scope.local, monthNum, yearNum));
 	                // Links template and scope
 	                var table = linkToDOM($scope);
 		            // Appends compiled template to DOM directive
 		            $element.empty();
-		            $element.append(table);
-		        });
-           }
-        }
-	});
-
-	//Custom directive to compile the local storage events
-	app.directive('calendarEvents', function($compile) {
-		var appendEvents = function(storage, index) {
-			for(var i = index; i < storage.length; i++){
-	            var from = storage[i].start;
-	        		to = storage[i].end;
-	        		title = storage[i].text;
-
-	        	if(from === to || !to) {
-		        	angular.element('th[data-date="'+ from +'"]').append("<span class='event single' ng-click='showEvent()' style='background:"+getRandomEventColour()+";'>"+ title + "</span>");
-	       		} else{
-	       			var date1 = new Date(from),
-	       				date2 = new Date(to),
-						timeDiff = Math.abs(date2.getTime() - date1.getTime()),
-						diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1,
-						backColor = getRandomEventColour();
-
-		        	angular.element('th[data-date="'+ from +'"]').append("<span class='event first' ng-click='showEvent()' style='background:"+backColor+";'>"+ title + "</span>");
-
-		        	if(diffDays > 0){
-		        		var yyyy = (date1.getFullYear()).toString(),
-		       				mm = (date1.getMonth()+1).toString(),
-		       				aux = yyyy + "-" + (mm[1]?mm:"0"+mm[0]) + "-";
-
-		        		for(var j = date1.getDate() + 1; j < date2.getDate(); j++)
-		            		angular.element('th[data-date="'+ aux + j +'"]').append("<span class='event empty' ng-click='showEvent()' style='background:"+backColor+";'/>"); //"+ title + "</span>");
-		        	}
-
-	    	    	angular.element('th[data-date="'+ to +'"]').append("<span class='event empty last' ng-click='showEvent()' style='background:"+backColor+";'/>"); //"+ title + "</span>");
-		        }
-	    	}
-        };
-
-      	return {
-            link:function($scope, $element, attrs) {
-            	var firstTime = true;
-            	$scope.$watch('local', function() {	                
-					var linkToDOM, content;
-
-					if(firstTime){						
-						linkToDOM = $compile(appendEvents($scope.local, 0));
-						firstTime = false;
-					}else
-						linkToDOM = $compile(appendEvents($scope.local, $scope.local.length-1));
-
-					content = linkToDOM($scope);
-		            $element.append(content);
-		        }, true);
+	            	$element.append(table);
+				},true);
            }
         }
 	});
@@ -166,10 +146,12 @@
       	$scope.update = function(CalendarEvent) {
         	var from = CalendarEvent.from != null ? CalendarEvent.from.yyyymmdd() : '',
         		to = CalendarEvent.to != null ? CalendarEvent.to.yyyymmdd() : '',
-        		title = CalendarEvent.title;
+        		title = CalendarEvent.title,
+				timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
+				diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '';
 
 	        //save data localy in localStorage
-	        $scope.local.push({text: title,	start: from, end: to});
+	        $scope.local.push({text: title,	start: from, end: to, diff: diffDays, backColor: getRandomEventColour()});
 			localStorage.setItem('data', JSON.stringify($scope.local));
     	};
     }]);
@@ -208,8 +190,42 @@
 		return d;
 	};
 
-	//Compares today's day with the passed value which is a date in format 'yyyy-MM-dd'
-	//... and returns true if they are the same
+	/*Returns all the events stored in localStorage that are present in 
+		the selected 'day'/'month'/'year'*/
+	function getDayEvents (storage, day, month, year) {
+		var array = [];
+
+		for(var i = 0; i < storage.length; i++){
+            var from = new Date(storage[i].start),
+        		to = new Date(storage[i].end), 
+        		diff = storage[i].diff,
+        		fromDay = from.getDate(), fromMonth = from.getMonth(), fromYear = from.getFullYear(),
+        		toDay = to.getDate(), toMonth = to.getMonth(), toYear = to.getFullYear();
+
+        	if(isNaN(to.getTime()) && fromDay == day && fromMonth == month && fromYear == year){ //invalid 'to' date, so it is just one day event
+        		array.push({storage: storage[i], position: 'solo'}); //start
+        	} else {
+	        	if(fromDay == day && fromMonth == month && fromYear == year)
+	        		array.push({storage: storage[i], position: 'start'}); //start
+	        	else if(toDay == day && toMonth == month && toYear == year)
+	        		array.push({storage: storage[i], position: 'end'}); //end
+	        	else{ //centre
+	        		if(fromMonth == toMonth && fromMonth == month && day > fromDay && day < toDay){ //all in same month
+	        			array.push({storage: storage[i], position: 'centre'});
+	        		} else if(day > fromDay && fromMonth == month && toMonth != month && !isNaN(to.getTime())){
+	        			array.push({storage: storage[i], position: 'centre'}); //current month is 'from'
+	        		} else if(day < toDay && toMonth == month && fromMonth != month){
+	        			array.push({storage: storage[i], position: 'centre'}); //current month is 'to'
+	        		}
+	        	}
+        	}
+	    }
+
+		return array;
+	};
+
+	/*Compares today's day with the passed value which is a date in format 'yyyy-MM-dd'
+		and returns true if they are the same*/
 	function Today (value) {
 		var todayDay = ("0" + new Date().getDate()).slice(-2), //01-31
 		    todayMonth = ("0" + (new Date().getMonth() + 1)).slice(-2), //01-12
