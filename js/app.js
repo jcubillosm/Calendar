@@ -34,8 +34,15 @@
 			scope.year = yearNum;
 		};
 
-		scope.showEvent = function(){
-			console.log("Test");
+		scope.showEvent = function(eventID){
+			for(var i=0; i < $scope.local.length; i++){
+				if($scope.local[i].id == eventID){
+					angular.element('div.event').empty();
+					angular.element('div.event').css('background', $scope.local[i].backColor);
+					angular.element('div.event').append($scope.local[i].text);		
+					break;
+				}
+			}
 		};
 	});
 
@@ -91,16 +98,16 @@
             		for(var cont = 0; cont < eventArray.length; cont++){
             			switch (eventArray[cont].position){
             				case 'solo':
-            					html += "<span class='event single' ng-click='showEvent()' style='background:"+eventArray[cont].storage.backColor+";'>"+ eventArray[cont].storage.text + "</span>";
+            					html += "<span class='event single' ng-click='showEvent("+eventArray[cont].storage.id+")' style='background:"+eventArray[cont].storage.backColor+";'>"+ eventArray[cont].storage.text + "</span>";
             				break;
             				case 'start':
-            					html += "<span class='event first' ng-click='showEvent()' style='background:"+eventArray[cont].storage.backColor+";'>"+ eventArray[cont].storage.text + "</span>";
+            					html += "<span class='event first' ng-click='showEvent("+eventArray[cont].storage.id+")' style='background:"+eventArray[cont].storage.backColor+";'>"+ eventArray[cont].storage.text + "</span>";
             				break;
             				case 'centre':
-            					html += "<span class='event empty' ng-click='showEvent()' style='background:"+eventArray[cont].storage.backColor+";'/>";
+            					html += "<span class='event empty' ng-click='showEvent("+eventArray[cont].storage.id+")' style='background:"+eventArray[cont].storage.backColor+";'/>";
             				break;
             				case 'end':
-            					html += "<span class='event empty last' ng-click='showEvent()' style='background:"+eventArray[cont].storage.backColor+";'/>";
+            					html += "<span class='event empty last' ng-click='showEvent("+eventArray[cont].storage.id+")' style='background:"+eventArray[cont].storage.backColor+";'/>";
             				break;
             			}
             		}
@@ -111,7 +118,7 @@
             	if (j % 7 == 0)
             		html += "</tr>";
             }
-            //console.log(j);
+            
             return html;
         };
 
@@ -148,10 +155,12 @@
         		to = CalendarEvent.to != null ? CalendarEvent.to.yyyymmdd() : '',
         		title = CalendarEvent.title,
 				timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
-				diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '';
+				diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
+				latestID = !$scope.local.length ? 0 : $scope.local[$scope.local.length-1].id;
+				latestID++;
 
 	        //save data localy in localStorage
-	        $scope.local.push({text: title,	start: from, end: to, diff: diffDays, backColor: getRandomEventColour()});
+	        $scope.local.push({id: latestID, text: title, start: from, end: to, diff: diffDays, backColor: getRandomEventColour()});
 			localStorage.setItem('data', JSON.stringify($scope.local));
     	};
     }]);
