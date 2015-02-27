@@ -49,6 +49,7 @@ span.event{
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	cursor: pointer;
 }
 
 span.event.first{
@@ -72,9 +73,15 @@ div.event{
 	color: white;
 	border-radius: 6px;
 	width: 100%;
+	max-width: 848px;
 	padding: 5px 10px;
   	font-size: 17.5px;
+  	word-wrap: break-word;
 }
+
+div.dateTitle {margin-bottom: 15px;}
+div.eventButtons {float: right;}
+div.eventButtons button {margin-right: 15px; width: 100px;}
 
 div.add_event{
 	height: 100%;
@@ -136,6 +143,35 @@ fieldset[disabled] .btn-custom:active,
 fieldset[disabled] .btn-custom.active {
   background-color: #009bcc;
   border-color: #009bcc;
+}
+
+.btn-delete {
+  background-color: #cc3100;
+  border-color: #cc3100;
+  color: white;
+  border-radius: 6px;
+}
+.btn-delete:hover,
+.btn-delete:focus,
+.btn-delete:active,
+.btn-delete.active {
+  background-color: #b32b00;
+  border-color: #992500;
+}
+.btn-delete.disabled:hover,
+.btn-delete.disabled:focus,
+.btn-delete.disabled:active,
+.btn-delete.disabled.active,
+.btn-delete[disabled]:hover,
+.btn-delete[disabled]:focus,
+.btn-delete[disabled]:active,
+.btn-delete[disabled].active,
+fieldset[disabled] .btn-delete:hover,
+fieldset[disabled] .btn-delete:focus,
+fieldset[disabled] .btn-delete:active,
+fieldset[disabled] .btn-delete.active {
+  background-color: #cc3100;
+  border-color: #cc3100;
 }
 
 .btn-oldstyle {

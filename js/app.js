@@ -3,7 +3,7 @@
 		monthNum = new Date().getMonth(), //today's month
 		yearNum = new Date().getFullYear(); //today's year
 		
-	app.controller('CalendarController', function($scope){
+	app.controller('CalendarController', function($scope, $compile){
 		var scope = $scope,
 			monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 
@@ -34,15 +34,38 @@
 			scope.year = yearNum;
 		};
 
+		//Function to show the event information in a div under the calendar
 		scope.showEvent = function(eventID){
 			for(var i=0; i < $scope.local.length; i++){
 				if($scope.local[i].id == eventID){
-					angular.element('div.event').empty();
+					//clean previous content
+					angular.element('div.event .dateTitle').empty();
+					angular.element('div.event .eventContent').empty();
+					//set same background colour as event colour
 					angular.element('div.event').css('background', $scope.local[i].backColor);
-					angular.element('div.event').append($scope.local[i].text);		
+					//get start and end dates in dd/mm/yyyy format
+					var startDate = $scope.local[i].start.split('-'),
+						endDate = $scope.local[i].end.split('-');						
+					startDate = startDate[2] + '/' + startDate[1] +'/' + startDate[0];					
+					if(endDate != '')
+						endDate = ' to ' + endDate[2] + '/' + endDate[1] +'/' + endDate[0];					
+					//append event data + option buttons and exit the loop
+					angular.element('div.event .dateTitle').append(startDate + endDate);
+					angular.element('div.event .dateTitle').append($compile('<div class="eventButtons"><button class="btn-custom" ng-click="calendar.editEvent('+$scope.local[i].id+')">Edit</button><button class="btn-delete" ng-click="calendar.removeEvent('+$scope.local[i].id+')">Delete</button></div>')($scope));
+					angular.element('div.event .eventContent').append($scope.local[i].text);
 					break;
 				}
 			}
+		};
+
+		//Removes the event from our localStorage item
+		this.removeEvent = function(eventID) {
+			console.log("Delete: ", eventID);
+		};
+
+		//Edit the event from our localStorage item
+		this.editEvent = function(eventID) {
+			console.log("Edit: ", eventID);
 		};
 	});
 
@@ -167,7 +190,7 @@
 
 	//Returns a color for the event background
 	function getRandomEventColour () {
-		var colourArray = ['#009bcc', '#cc3100', '#00cc97', '#9700cc', '#cc9700', '#1f5cb1', '#646472'],
+		var colourArray = ['#ff748c', '#82cc68', '#fd8e2f', '#9700cc', '#cc9700', '#18498d', '#646472'],
 			latestColour = localStorage.getItem('colourIndex');
 
 		if(latestColour < colourArray.length - 1)
