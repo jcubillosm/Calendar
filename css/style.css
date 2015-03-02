@@ -108,7 +108,7 @@ div.add_event form label{
 	text-align: left;
 }
 
-div.add_event form input{
+div.add_event form input, button[type=submit]{
 	float: left;
 	width: 100%;
 	margin-bottom: 8px;
@@ -117,46 +117,36 @@ div.add_event form input{
 /*############# BUTTONS - Twitter's Bootstrap #################################*/
 
 .btn-custom {
-  background-color: #009bcc;
-  border-color: #009bcc;
-  color: white;
-  border-radius: 6px;
+  	background-color: #009bcc;
+  	border-color: #009bcc;
+  	color: white;
+  	border-radius: 6px;
 }
 .btn-custom:hover,
 .btn-custom:focus,
 .btn-custom:active,
 .btn-custom.active {
-  background-color: #0088b3;
-  border-color: #007499;
+  	background-color: #0088b3;
+  	border-color: #007499;
 }
-.btn-custom.disabled:hover,
-.btn-custom.disabled:focus,
-.btn-custom.disabled:active,
-.btn-custom.disabled.active,
-.btn-custom[disabled]:hover,
-.btn-custom[disabled]:focus,
-.btn-custom[disabled]:active,
-.btn-custom[disabled].active,
-fieldset[disabled] .btn-custom:hover,
-fieldset[disabled] .btn-custom:focus,
-fieldset[disabled] .btn-custom:active,
-fieldset[disabled] .btn-custom.active {
-  background-color: #009bcc;
-  border-color: #009bcc;
+.btn-custom[disabled] {
+  	pointer-events: none;
+	cursor: not-allowed;
+	opacity: .65;
 }
 
 .btn-delete {
-  background-color: #cc3100;
-  border-color: #cc3100;
-  color: white;
-  border-radius: 6px;
+  	background-color: #cc3100;
+  	border-color: #cc3100;
+  	color: white;
+  	border-radius: 6px;
 }
 .btn-delete:hover,
 .btn-delete:focus,
 .btn-delete:active,
 .btn-delete.active {
-  background-color: #b32b00;
-  border-color: #992500;
+  	background-color: #b32b00;
+  	border-color: #992500;
 }
 .btn-delete.disabled:hover,
 .btn-delete.disabled:focus,
@@ -170,8 +160,8 @@ fieldset[disabled] .btn-delete:hover,
 fieldset[disabled] .btn-delete:focus,
 fieldset[disabled] .btn-delete:active,
 fieldset[disabled] .btn-delete.active {
-  background-color: #cc3100;
-  border-color: #cc3100;
+  	background-color: #cc3100;
+  	border-color: #cc3100;
 }
 
 .btn-oldstyle {
