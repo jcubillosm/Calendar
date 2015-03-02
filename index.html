@@ -29,11 +29,11 @@
       <h2>Add Event</h2>
       <form ng-controller="FormController" name="CalendarEvent" novalidate>
         <label>Title</label>
-        <input type="text" ng-model="CalendarEvent.title" required/>
+        <input id="EventTitle" type="text" ng-model="CalendarEvent.title" required/>
         <label>From:</label>
-        <input type="date" ng-model="CalendarEvent.from" required/>
+        <input id="EventDateFrom" type="date" ng-model="CalendarEvent.from" required/>
         <label>To:</label>
-        <input type="date" ng-model="CalendarEvent.to"/>
+        <input id="EventDateTo" type="date" ng-model="CalendarEvent.to"/>
         <input class="btn-custom" type="submit" text="Add event" ng-click="update(CalendarEvent)">
       </form>
     </div>

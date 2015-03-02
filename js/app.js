@@ -10,8 +10,7 @@
 		this.weekDays = [{name:'Mon'}, {name:'Tue'}, {name:'Wed'}, {name:'Thu'}, {name:'Fri'}, {name:'Sat'}, {name:'Sun'}];
 		scope.year = yearNum;
 		scope.monthName = monthNames[(monthNum >= 12? 0 : monthNum)];
-		scope.saved = localStorage.getItem('data');
-        scope.local = (localStorage.getItem('data')!==null) ? JSON.parse(scope.saved) : [];
+        scope.local = (localStorage.getItem('data')!==null) ? JSON.parse(localStorage.getItem('data')) : [];
         localStorage.setItem('data', JSON.stringify(scope.local));
 
 		/*Gives functionality to "Next" and "Previous" buttons
@@ -60,12 +59,34 @@
 
 		//Removes the event from our localStorage item
 		this.removeEvent = function(eventID) {
-			console.log("Delete: ", eventID);
+			var storage = $scope.local;
+
+			for(var i=0; i<storage.length; i++){
+				if(storage[i].id === eventID){
+					storage.splice(i, 1);
+					break;
+				}
+			}
+
+			localStorage.setItem('data', JSON.stringify(storage));
+  			//clean previous content and set background to white
+			angular.element('div.event .dateTitle').empty();
+			angular.element('div.event .eventContent').empty();
+  			angular.element('div.event').css('background', 'white');
 		};
 
 		//Edit the event from our localStorage item
 		this.editEvent = function(eventID) {
-			console.log("Edit: ", eventID);
+			var storage = $scope.local;
+			
+			for(var i=0; i<storage.length; i++){
+				if(storage[i].id === eventID){
+					angular.element('input#EventTitle').val(storage[i].text);
+					angular.element('input#EventDateFrom').val(storage[i].start);
+  					angular.element('input#EventDateTo').val(storage[i].end);
+					break;
+				}
+			}
 		};
 	});
 
