@@ -33,6 +33,14 @@
 			scope.year = yearNum;
 		};
 
+		//This function goes to today's day, showing today's calendar month
+		this.showToday = function(){
+			monthNum = new Date().getMonth(); //Today's Month
+			yearNum = new Date().getFullYear(); //Today's Year
+			scope.monthName = monthNames[(monthNum >= 12? 0 : monthNum)];
+			scope.year = yearNum;
+		};
+
 		//Function to show the event information in a div under the calendar
 		scope.showEvent = function(eventID){
 			for(var i=0; i < $scope.local.length; i++){
@@ -112,6 +120,7 @@
             	days = getMonthDays(month, year),
             	weekDayNum = getWeekDay(monthNum, yearNum),
             	eventArray = [],
+            	rowCount = 0,
             	html = "<tr><th id='week' ng-repeat='weekDay in calendar.weekDays'>{{weekDay.name}}</th></tr><tr><th ng-repeat='n in [] | range:" + weekDayNum + "'></th>";
 
             	/*//if the first day starts on monday then we need and extra line at the top
@@ -159,8 +168,35 @@
 
             	html += "</th>";
 
-            	if (j % 7 == 0)
+            	if (j % 7 == 0){
             		html += "</tr>";
+            		rowCount++;
+            	}
+            }
+            
+            //Logic to add last rows to the table in order to always get the same size 
+            var aux = (7-(j-(7*parseInt(j/7))))+1,
+            	aux2 = aux > 7 ? parseInt(aux/7) : 0;
+            aux = aux-aux2;
+
+            if(aux2 > 0){
+            	console.log("IN");
+            	while(aux2 > 0){
+            		html += "<th></th>";
+            		aux2 --;
+            	}
+            	html += "</tr>";
+            	rowCount++;
+            }
+            while(aux > 0){
+            	html += "<th></th>";
+            	aux --;
+            }
+            html += "</tr>";
+            rowCount++;
+
+            if(rowCount == 5){
+            	html += "<tr><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr>";
             }
             
             return html;
@@ -263,11 +299,11 @@
 	        	else if(toDay == day && toMonth == month && toYear == year)
 	        		array.push({storage: storage[i], position: 'end'}); //end
 	        	else{ //centre
-	        		if(fromMonth == toMonth && fromMonth == month && day > fromDay && day < toDay){ //all in same month
+	        		if(fromMonth == toMonth && fromMonth == month && day > fromDay && day < toDay && fromYear == year){ //all in same month
 	        			array.push({storage: storage[i], position: 'centre'});
-	        		} else if(day > fromDay && fromMonth == month && toMonth != month && !isNaN(to.getTime())){
+	        		} else if(day > fromDay && fromMonth == month && toMonth != month && !isNaN(to.getTime()) && fromYear == year){
 	        			array.push({storage: storage[i], position: 'centre'}); //current month is 'from'
-	        		} else if(day < toDay && toMonth == month && fromMonth != month){
+	        		} else if(day < toDay && toMonth == month && fromMonth != month && fromYear == year){
 	        			array.push({storage: storage[i], position: 'centre'}); //current month is 'to'
 	        		}
 	        	}

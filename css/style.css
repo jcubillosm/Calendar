@@ -1,24 +1,20 @@
-header{
+header {
 	text-align: center;
 	font-weight: bold;
 	font-size: 35px;
 	font-family: sans-serif;
 }
 
-h2{
-	margin: 20px 0;
-}
+h2 {margin: 20px 0;}
 
-h3{
-	font-size: 45px;
-}
+h3 {font-size: 45px;}
 
-div.group{
+div.group {
 	float: left;
 	margin-left: 36px;
 }
 
-table th{
+table th {
 	border: 1px solid #909090;
 	padding: 5px 0;
 	width: 120px;
@@ -27,8 +23,10 @@ table th{
 	text-align: right;
 }
 
-table th#week{
-	background: #D8D8D8;
+table th:empty {background: #eef0f5;//#f5f0ee;//#f5f3ee;}
+
+table th#week {
+	background: #aeb8cf;
 	font-size: 19px;
 	text-align: center;
 	font-weight: bold;
@@ -36,7 +34,7 @@ table th#week{
 	padding: 12px 20px;
 }
 
-span.event{
+span.event {
 	font-weight: bold;
 	color: white;
 	background: #009bcc;
@@ -52,23 +50,21 @@ span.event{
 	cursor: pointer;
 }
 
-span.event.first{
+span.event.first {
 	border-bottom-left-radius: 4px;
 	border-top-left-radius: 4px;
 }
 
-span.event.last{
+span.event.last {
 	border-top-right-radius: 4px;
 	border-bottom-right-radius: 4px;
 }
 
-span.event.single{
-	border-radius: 4px;
-}
+span.event.single {border-radius: 4px;}
 
 /*############## ADD EVENT section ################################*/
 
-div.event{
+div.event {
 	margin: 25px 0; 
 	color: white;
 	border-radius: 6px;
@@ -83,7 +79,7 @@ div.dateTitle {margin-bottom: 15px;}
 div.eventButtons {float: right;}
 div.eventButtons button {margin-right: 15px; width: 100px;}
 
-div.add_event{
+div.add_event {
 	height: 100%;
 	width: 20%;
 	text-align: center;
@@ -96,19 +92,19 @@ div.add_event{
 	margin: 110px 0 0 15px;
 }
 
-div.add_event form{
+div.add_event form {
 	float: left;
 	width: 100%;
 	padding: 5px;
 	background: white;
 }
 
-div.add_event form label{
+div.add_event form label {
 	width: 100%;
 	text-align: left;
 }
 
-div.add_event form input, button[type=submit]{
+div.add_event form input, button[type=submit] {
 	float: left;
 	width: 100%;
 	margin-bottom: 8px;
@@ -122,10 +118,7 @@ div.add_event form input, button[type=submit]{
   	color: white;
   	border-radius: 6px;
 }
-.btn-custom:hover,
-.btn-custom:focus,
-.btn-custom:active,
-.btn-custom.active {
+.btn-custom:hover {
   	background-color: #0088b3;
   	border-color: #007499;
 }
@@ -141,75 +134,31 @@ div.add_event form input, button[type=submit]{
   	color: white;
   	border-radius: 6px;
 }
-.btn-delete:hover,
-.btn-delete:focus,
-.btn-delete:active,
-.btn-delete.active {
+.btn-delete:hover {
   	background-color: #b32b00;
   	border-color: #992500;
 }
-.btn-delete.disabled:hover,
-.btn-delete.disabled:focus,
-.btn-delete.disabled:active,
-.btn-delete.disabled.active,
-.btn-delete[disabled]:hover,
-.btn-delete[disabled]:focus,
-.btn-delete[disabled]:active,
-.btn-delete[disabled].active,
-fieldset[disabled] .btn-delete:hover,
-fieldset[disabled] .btn-delete:focus,
-fieldset[disabled] .btn-delete:active,
-fieldset[disabled] .btn-delete.active {
-  	background-color: #cc3100;
-  	border-color: #cc3100;
-}
 
 .btn-oldstyle {
-  padding: 2px 10px;
-  font-size: 17.5px;
-  border-radius: 6px;
-  background-color: #00cc39;
-  border-color: #00cc39;
-  color: #fff;
-  text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
-  background-color: #00b833;
-  background-image: -moz-linear-gradient(top,#00cc39,#00992b);
-  background-image: -webkit-gradient(linear,0 0,0 100%,from(#00cc39),to(#00992b));
-  background-image: -webkit-linear-gradient(top,#00cc39,#00992b);
-  background-image: -o-linear-gradient(top,#00cc39,#00992b);
-  background-image: linear-gradient(to bottom,#00cc39,#00992b);
-  background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff00cc39', endColorstr='#ff00992a', GradientType=0);
-  border-color: #00992b #00992b #004d15;
-  border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
+  	padding: 2px 10px;
+  	font-size: 17.5px;
+  	border-radius: 6px;
+  	background-color: #19ba46;
+  	border-color: #19ba46;
+  	color: #fff;
 }
-.btn-oldstyle:hover,
-.btn-oldstyle:focus {
-  text-decoration: none;
-  background-position: 0 -15px;
-  -webkit-transition: background-position .1s linear;
-  -moz-transition: background-position .1s linear;
-  -o-transition: background-position .1s linear;
-  transition: background-position .1s linear;
+.btn-oldstyle:hover {
+	background-color: #00992b;
+	border-color: #00992b;
 }
-.btn-oldstyle:hover,
-.btn-oldstyle:focus {
-  background-color: #00992b;
+
+.btn-today {
+	background: #ffa64d;
+	border-color: #ffa64d;
+	float: right;
 }
-.btn-oldstyle:active,
-.btn-oldstyle.active,
-.btn-oldstyle.active:hover {
-  background-color: #00b332;
-  border-color: #00992b;
-}
-.btn-oldstyle.disabled:hover,
-.btn-oldstyle.disabled:focus,
-.btn-oldstyle.disabled:active,
-.btn-oldstyle.disabled.active,
-.btn-oldstyle[disabled] .btn-oldstyle:hover,
-.btn-oldstyle[disabled] .btn-oldstyle:focus,
-.btn-oldstyle[disabled] .btn-oldstyle:active,
-.btn-oldstyle[disabled] .btn-oldstyle.active {
-  background-color: #00cc39;
-  border-color: #00cc39;
+
+.btn-today:hover {
+	background: #e59545;
+	border-color: #e59545;
 }
