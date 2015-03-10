@@ -110,6 +110,8 @@ div.add_event form input, button[type=submit] {
 	margin-bottom: 8px;
 }
 
+textarea#EventDescription {resize: vertical;}
+
 /*############# BUTTONS - Twitter's Bootstrap #################################*/
 
 .btn-custom {
@@ -161,4 +163,9 @@ div.add_event form input, button[type=submit] {
 .btn-today:hover {
 	background: #e59545;
 	border-color: #e59545;
+}
+
+button[type=submit] {
+	margin-top: 10px;
+	padding: 5px 0;
 }

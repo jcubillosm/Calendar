@@ -31,13 +31,18 @@
       <form ng-controller="FormController" name="CalendarEvent" novalidate>
         <!-- Event Title -->
         <div class="form-group" ng-class="{ 'has-error' : CalendarEvent.eventTitle.$invalid && !CalendarEvent.eventTitle.$pristine }">
-            <label>Title</label>
-            <input id="EventTitle" type="text" name="eventTitle" class="form-control" ng-model="CalendarEvent.title" required>
+            <label>Title: *</label>
+            <input id="EventTitle" type="text" name="eventTitle" class="form-control" ng-model="CalendarEvent.title" maxlength="30" required>
             <p ng-show="CalendarEvent.eventTitle.$invalid && !CalendarEvent.eventTitle.$pristine" class="help-block">A title is required.</p>
         </div>
+        <!-- Event Description -->
+        <div class="form-group" ng-class="{ 'has-error' : CalendarEvent.eventDescription.$invalid && !CalendarEvent.eventDescription.$pristine }">
+            <label>Description:</label>
+            <textarea id="EventDescription" name="eventDescription" class="form-control" ng-model="CalendarEvent.description" rows="4" cols="50" maxlength="300"></textarea>
+        </div>        
         <!-- Event Date From -->
         <div class="form-group" ng-class="{ 'has-error' : CalendarEvent.eventFrom.$invalid && !CalendarEvent.eventFrom.$pristine }">
-            <label>From:</label>
+            <label>From: *</label>
             <input id="EventDateFrom" type="date" name="eventFrom" ng-model="CalendarEvent.from" class="form-control" required>
             <p ng-show="CalendarEvent.eventFrom.$invalid && !CalendarEvent.eventFrom.$pristine" class="help-block">This date is required.</p>
         </div>
@@ -48,6 +53,7 @@
         </div>
         <!-- Submit Form -->
         <button type="submit" class="btn-custom" ng-click="update(CalendarEvent)" ng-disabled="CalendarEvent.$invalid">Add event</button>
+        <p>* Required fields</p>
       </form>
     </div>
 </body>

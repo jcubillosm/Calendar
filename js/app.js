@@ -51,15 +51,16 @@
 					//set same background colour as event colour
 					angular.element('div#event').css('background', $scope.local[i].backColor);
 					//get start and end dates in dd/mm/yyyy format
-					var startDate = $scope.local[i].start.split('-'),
+					var title = $scope.local[i].text,
+						startDate = $scope.local[i].start.split('-'),
 						endDate = $scope.local[i].end.split('-');						
 					startDate = startDate[2] + '/' + startDate[1] +'/' + startDate[0];					
 					if(endDate != '')
 						endDate = ' to ' + endDate[2] + '/' + endDate[1] +'/' + endDate[0];					
-					//append event data + option buttons and exit the loop
-					angular.element('div#event .dateTitle').append(startDate + endDate);
+					//append event data + option buttons and exit the loop					
 					angular.element('div#event .dateTitle').append($compile('<div class="eventButtons"><button class="btn-custom" ng-click="calendar.editEvent('+$scope.local[i].id+')">Edit</button><button class="btn-delete" ng-click="calendar.removeEvent('+$scope.local[i].id+')">Delete</button></div>')($scope));
-					angular.element('div#event .eventContent').append($scope.local[i].text);
+					angular.element('div#event .dateTitle').append(title + '<br>' + startDate + endDate);
+					angular.element('div#event .eventContent').append($scope.local[i].description);
 					break;
 				}
 			}
@@ -94,8 +95,11 @@
 			for(var i=0; i<storage.length; i++){
 				if(storage[i].id === eventID){
 					angular.element('input#EventTitle').val(storage[i].text);
+					angular.element('textarea#EventDescription').val(storage[i].description);
 					angular.element('input#EventDateFrom').val(storage[i].start);
   					angular.element('input#EventDateTo').val(storage[i].end);
+  					angular.element('input[ng-model]').trigger('input');
+  					angular.element('textarea[ng-model]').trigger('change');
 					break;
 				}
 			}
@@ -229,8 +233,7 @@
 	//Controller for "Add Event" form
 	app.controller('FormController', ['$scope', '$element', function($scope, $element) {
     	angular.element('input[type="date"]').attr({
-			min: new Date().yyyymmdd(),
-			value:'2015-02-15'
+			min: new Date().yyyymmdd()
 		});
 		    
       	//Updates the events on form submit, it saves the new event into local storage
@@ -238,13 +241,14 @@
         	var from = CalendarEvent.from != null ? CalendarEvent.from.yyyymmdd() : '',
         		to = CalendarEvent.to != null ? CalendarEvent.to.yyyymmdd() : '',
         		title = CalendarEvent.title,
+        		content = CalendarEvent.description,
 				timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
 				diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
 				latestID = !$scope.local.length ? 0 : $scope.local[$scope.local.length-1].id;
 				latestID++;
 
 	        //save data localy in localStorage
-	        $scope.local.push({id: latestID, text: title, start: from, end: to, diff: diffDays, backColor: getRandomEventColour()});
+	        $scope.local.push({id: latestID, text: title, description: content, start: from, end: to, diff: diffDays, backColor: getRandomEventColour()});
 			localStorage.setItem('data', JSON.stringify($scope.local));
     	};
     }]);
