@@ -3,7 +3,7 @@
 		monthNum = new Date().getMonth(), //today's month
 		yearNum = new Date().getFullYear(); //today's year
 		
-	app.controller('CalendarController', function($scope, $compile){
+	app.controller('CalendarController', function($scope, $compile, $location, $anchorScroll){
 		var scope = $scope,
 			monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 
@@ -46,10 +46,10 @@
 			for(var i=0; i < $scope.local.length; i++){
 				if($scope.local[i].id == eventID){
 					//clean previous content
-					angular.element('div.event .dateTitle').empty();
-					angular.element('div.event .eventContent').empty();
+					angular.element('div#event .dateTitle').empty();
+					angular.element('div#event .eventContent').empty();
 					//set same background colour as event colour
-					angular.element('div.event').css('background', $scope.local[i].backColor);
+					angular.element('div#event').css('background', $scope.local[i].backColor);
 					//get start and end dates in dd/mm/yyyy format
 					var startDate = $scope.local[i].start.split('-'),
 						endDate = $scope.local[i].end.split('-');						
@@ -57,12 +57,16 @@
 					if(endDate != '')
 						endDate = ' to ' + endDate[2] + '/' + endDate[1] +'/' + endDate[0];					
 					//append event data + option buttons and exit the loop
-					angular.element('div.event .dateTitle').append(startDate + endDate);
-					angular.element('div.event .dateTitle').append($compile('<div class="eventButtons"><button class="btn-custom" ng-click="calendar.editEvent('+$scope.local[i].id+')">Edit</button><button class="btn-delete" ng-click="calendar.removeEvent('+$scope.local[i].id+')">Delete</button></div>')($scope));
-					angular.element('div.event .eventContent').append($scope.local[i].text);
+					angular.element('div#event .dateTitle').append(startDate + endDate);
+					angular.element('div#event .dateTitle').append($compile('<div class="eventButtons"><button class="btn-custom" ng-click="calendar.editEvent('+$scope.local[i].id+')">Edit</button><button class="btn-delete" ng-click="calendar.removeEvent('+$scope.local[i].id+')">Delete</button></div>')($scope));
+					angular.element('div#event .eventContent').append($scope.local[i].text);
 					break;
 				}
 			}
+			// set the location.hash to the id of
+	    	// the element you wish to scroll to.
+	      	$location.hash('event');
+	      	$anchorScroll();
 		};
 
 		//Removes the event from our localStorage item
@@ -78,9 +82,9 @@
 
 			localStorage.setItem('data', JSON.stringify(storage));
   			//clean previous content and set background to white
-			angular.element('div.event .dateTitle').empty();
-			angular.element('div.event .eventContent').empty();
-  			angular.element('div.event').css('background', 'white');
+			angular.element('div#event .dateTitle').empty();
+			angular.element('div#event .eventContent').empty();
+  			angular.element('div#event').css('background', 'white');
 		};
 
 		//Edit the event from our localStorage item

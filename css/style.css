@@ -64,7 +64,7 @@ span.event.single {border-radius: 4px;}
 
 /*############## ADD EVENT section ################################*/
 
-div.event {
+div#event {
 	margin: 25px 0; 
 	color: white;
 	border-radius: 6px;
@@ -155,7 +155,7 @@ div.add_event form input, button[type=submit] {
 .btn-today {
 	background: #ffa64d;
 	border-color: #ffa64d;
-	float: right;
+	margin-left: 5px;
 }
 
 .btn-today:hover {
