@@ -92,6 +92,13 @@ div.add_event {
 	margin: 110px 0 0 15px;
 }
 
+div.edit_event{
+	color: #007d54;
+	background-color: #bada55;
+	border-color: #bada55;
+	border: 3px solid #bada55;	
+}
+
 div.add_event form {
 	float: left;
 	width: 100%;
@@ -128,6 +135,15 @@ textarea#EventDescription {resize: vertical;}
   	pointer-events: none;
 	cursor: not-allowed;
 	opacity: .65;
+}
+
+.btn-edit {
+  	background-color: #007d54;
+  	border-color: #007d54;
+}
+.btn-edit:hover {
+  	background-color: #004730;
+  	border-color: #004730;
 }
 
 .btn-delete {

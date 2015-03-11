@@ -1,9 +1,9 @@
-(function(){
+(function () {
 	var app = angular.module('jsCalendar', []),
 		monthNum = new Date().getMonth(), //today's month
 		yearNum = new Date().getFullYear(); //today's year
 		
-	app.controller('CalendarController', function($scope, $compile, $location, $anchorScroll){
+	app.controller('CalendarController', function ($scope, $compile, $location, $anchorScroll) {
 		var scope = $scope,
 			monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 
@@ -12,10 +12,12 @@
 		scope.monthName = monthNames[(monthNum >= 12? 0 : monthNum)];
         scope.local = (localStorage.getItem('data')!==null) ? JSON.parse(localStorage.getItem('data')) : [];
         localStorage.setItem('data', JSON.stringify(scope.local));
+        scope.event_ID = null;
+        scope.showValidationMessages = true;
 
 		/*Gives functionality to "Next" and "Previous" buttons
 			changing current month and year values*/
-		this.setMonth = function(buttonID){
+		this.setMonth = function (buttonID) {
 			if(buttonID === 2){ //Increase month and/or year
 				monthNum++;
 				if(monthNum === 12){
@@ -34,7 +36,7 @@
 		};
 
 		//This function goes to today's day, showing today's calendar month
-		this.showToday = function(){
+		this.showToday = function () {
 			monthNum = new Date().getMonth(); //Today's Month
 			yearNum = new Date().getFullYear(); //Today's Year
 			scope.monthName = monthNames[(monthNum >= 12? 0 : monthNum)];
@@ -42,7 +44,8 @@
 		};
 
 		//Function to show the event information in a div under the calendar
-		scope.showEvent = function(eventID){
+		scope.showEvent = function (eventID) {
+			scope.clearForm();
 			for(var i=0; i < $scope.local.length; i++){
 				if($scope.local[i].id == eventID){
 					//clean previous content
@@ -64,14 +67,14 @@
 					break;
 				}
 			}
-			// set the location.hash to the id of
-	    	// the element you wish to scroll to.
+			// set the location.hash to the id of the element you wish to scroll to.
 	      	$location.hash('event');
 	      	$anchorScroll();
 		};
 
 		//Removes the event from our localStorage item
-		this.removeEvent = function(eventID) {
+		this.removeEvent = function (eventID) {
+			scope.clearForm();
 			var storage = $scope.local;
 
 			for(var i=0; i<storage.length; i++){
@@ -89,8 +92,9 @@
 		};
 
 		//Edit the event from our localStorage item
-		this.editEvent = function(eventID) {
+		this.editEvent = function (eventID) {
 			var storage = $scope.local;
+			scope.event_ID = eventID;
 			
 			for(var i=0; i<storage.length; i++){
 				if(storage[i].id === eventID){
@@ -103,10 +107,87 @@
 					break;
 				}
 			}
+			//change the form action
+			scope.changeActionTo('editEvent');
 		};
+
+		//Clearing the form input fields
+		scope.clearForm = function () {
+			scope.changeActionTo('addEvent');
+			scope.showValidationMessages = false;
+			angular.element('form[name="CalendarEvent"]').trigger("reset");
+  			angular.element('input[ng-model]').trigger('input');
+  			angular.element('textarea[ng-model]').trigger('change');
+		};
+
+		//form actions: add or edit events
+		scope.formActions = {
+	        addEvent: function (CalendarEvent) {
+	            var from = CalendarEvent.from != null ? CalendarEvent.from.yyyymmdd() : '',
+	        		to = CalendarEvent.to != null ? CalendarEvent.to.yyyymmdd() : '',
+	        		title = CalendarEvent.title,
+	        		content = CalendarEvent.description,
+					timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
+					diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
+					latestID = !$scope.local.length ? 0 : $scope.local[$scope.local.length-1].id;
+					latestID++;
+
+	        	//save data localy in localStorage
+		        $scope.local.push({id: latestID, text: title, description: content, start: from, end: to, diff: diffDays, backColor: getRandomEventColour()});
+				localStorage.setItem('data', JSON.stringify($scope.local));
+				scope.clearForm();
+	        },
+	        editEvent: function (CalendarEvent) {	        	
+	        	var eventID = scope.event_ID;
+
+	        	//if an event is selected then we look for it on our local storage and replace its values
+	        	if(eventID != null) {
+		        	var from = CalendarEvent.from != null ? CalendarEvent.from.yyyymmdd() : '',
+		        		to = CalendarEvent.to != null ? CalendarEvent.to.yyyymmdd() : '',
+		        		title = CalendarEvent.title,
+		        		content = CalendarEvent.description,
+						timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
+						diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
+						storage = $scope.local;				
+
+					for(var i=0; i<storage.length; i++){
+						if(storage[i].id === eventID){
+							storage[i].text = title;
+							storage[i].description = content;
+							storage[i].start = from;
+							storage[i].end = to;
+							storage[i].diff = diffDays;
+							break;
+						}
+					}
+					//we finally store the new JSON with the edited values
+					localStorage.setItem('data', JSON.stringify(storage));    
+					scope.showEvent(eventID);
+					scope.event_ID = null;   
+				}
+				//Reseting the form				
+				scope.clearForm();
+	        }
+	    };
+
+	    //function to change the form action
+	    scope.changeActionTo = function (name) {
+		    scope.action = scope.formActions[name];
+		    if(name === 'addEvent')
+		        scope.actionLabel = 'Add Event';
+		    else
+		    	scope.actionLabel = 'Edit Event';
+		};
+
+		scope.changeActionTo('addEvent');
+
+		//setting minimum allowed value for inputs date
+    	angular.element('input[type="date"]').attr({
+			min: new Date().yyyymmdd()
+		});
 	});
 
-	app.filter('range', function() {
+	app.filter('range', function () {
 	  return function(val, range) {
 	    range = parseInt(range);
 	    for (var i=0; i<range; i++)
@@ -116,8 +197,8 @@
 	});
 
 	//Custom directive to compile the calendar table
-	app.directive('calendartable', function($compile) {
-		var generateCalendarTable = function(storage, month, year) {
+	app.directive('calendartable', function ($compile) {
+		var generateCalendarTable = function (storage, month, year) {
             var i = 0, 
             	j = 0,     	
             	dd = 0,
@@ -211,13 +292,13 @@
         };
 
       	return {
-            link:function($scope, $element, attrs) {
+            link:function ($scope, $element, attrs) {
             	/*WatchGroup and watchCollection (current AngularJS v1.3.7) don´t support a deep watch that I need to 
             		catch the differences in 'local', so this is the "hack" way: registering an anonymous deep watcher
             		with array of values being passed in from the watch function*/
-				$scope.$watch(function(){
+				$scope.$watch(function () {
 				    return ['local', 'monthName'].map(angular.bind($scope, $scope.$eval));
-				}, function(newV){
+				}, function (newV) {
 			  		// Compile the HTML template and attach to calendartable directive
                 	var linkToDOM = $compile(generateCalendarTable($scope.local, monthNum, yearNum));
 	                // Links template and scope
@@ -229,29 +310,6 @@
            }
         }
 	});
-
-	//Controller for "Add Event" form
-	app.controller('FormController', ['$scope', '$element', function($scope, $element) {
-    	angular.element('input[type="date"]').attr({
-			min: new Date().yyyymmdd()
-		});
-		    
-      	//Updates the events on form submit, it saves the new event into local storage
-      	$scope.update = function(CalendarEvent) {
-        	var from = CalendarEvent.from != null ? CalendarEvent.from.yyyymmdd() : '',
-        		to = CalendarEvent.to != null ? CalendarEvent.to.yyyymmdd() : '',
-        		title = CalendarEvent.title,
-        		content = CalendarEvent.description,
-				timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
-				diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
-				latestID = !$scope.local.length ? 0 : $scope.local[$scope.local.length-1].id;
-				latestID++;
-
-	        //save data localy in localStorage
-	        $scope.local.push({id: latestID, text: title, description: content, start: from, end: to, diff: diffDays, backColor: getRandomEventColour()});
-			localStorage.setItem('data', JSON.stringify($scope.local));
-    	};
-    }]);
 
 	//Returns a color for the event background
 	function getRandomEventColour () {
