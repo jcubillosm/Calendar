@@ -14,6 +14,7 @@
         localStorage.setItem('data', JSON.stringify(scope.local));
         scope.event_ID = null;
         scope.showValidationMessages = true;
+        scope.today = new Date().yyyymmdd();
 
 		/*Gives functionality to "Next" and "Previous" buttons
 			changing current month and year values*/
@@ -67,12 +68,13 @@
 					break;
 				}
 			}
+			$scope.showEventsArea = true;
 			// set the location.hash to the id of the element you wish to scroll to.
 	      	$location.hash('event');
 	      	$anchorScroll();
 		};
 
-		//Removes the event from our localStorage item
+		//Removes the event from our localStorage item and hides the events div area
 		this.removeEvent = function (eventID) {
 			scope.clearForm();
 			var storage = $scope.local;
@@ -85,10 +87,7 @@
 			}
 
 			localStorage.setItem('data', JSON.stringify(storage));
-  			//clean previous content and set background to white
-			angular.element('div#event .dateTitle').empty();
-			angular.element('div#event .eventContent').empty();
-  			angular.element('div#event').css('background', 'white');
+  			$scope.showEventsArea = false;
 		};
 
 		//Edit the event from our localStorage item
@@ -98,12 +97,10 @@
 			
 			for(var i=0; i<storage.length; i++){
 				if(storage[i].id === eventID){
-					angular.element('input#EventTitle').val(storage[i].text);
-					angular.element('textarea#EventDescription').val(storage[i].description);
-					angular.element('input#EventDateFrom').val(storage[i].start);
-  					angular.element('input#EventDateTo').val(storage[i].end);
-  					angular.element('input[ng-model]').trigger('input');
-  					angular.element('textarea[ng-model]').trigger('change');
+					scope.CalendarEvent.title = storage[i].text;
+					scope.CalendarEvent.description = storage[i].description;
+					scope.CalendarEvent.from = storage[i].start != '' ? new Date(storage[i].start) : null;
+  					scope.CalendarEvent.to = storage[i].end != '' ? new Date(storage[i].end) : null;
 					break;
 				}
 			}
@@ -115,9 +112,7 @@
 		scope.clearForm = function () {
 			scope.changeActionTo('addEvent');
 			scope.showValidationMessages = false;
-			angular.element('form[name="CalendarEvent"]').trigger("reset");
-  			angular.element('input[ng-model]').trigger('input');
-  			angular.element('textarea[ng-model]').trigger('change');
+			$scope.CalendarEvent = {};
 		};
 
 		//form actions: add or edit events
@@ -131,6 +126,9 @@
 					diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
 					latestID = !$scope.local.length ? 0 : $scope.local[$scope.local.length-1].id;
 					latestID++;
+
+					if(title == "" || from == "") return;
+					if(to === from) to = '';
 
 	        	//save data localy in localStorage
 		        $scope.local.push({id: latestID, text: title, description: content, start: from, end: to, diff: diffDays, backColor: getRandomEventColour()});
@@ -148,7 +146,9 @@
 		        		content = CalendarEvent.description,
 						timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
 						diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
-						storage = $scope.local;				
+						storage = $scope.local;
+
+					if(to === from) to = '';
 
 					for(var i=0; i<storage.length; i++){
 						if(storage[i].id === eventID){
@@ -180,11 +180,6 @@
 		};
 
 		scope.changeActionTo('addEvent');
-
-		//setting minimum allowed value for inputs date
-    	angular.element('input[type="date"]').attr({
-			min: new Date().yyyymmdd()
-		});
 	});
 
 	app.filter('range', function () {
@@ -212,12 +207,6 @@
             	rowCount = 0,
             	html = "<tr><th id='week' ng-repeat='weekDay in calendar.weekDays'>{{weekDay.name}}</th></tr><tr><th ng-repeat='n in [] | range:" + weekDayNum + "'></th>";
 
-            	/*//if the first day starts on monday then we need and extra line at the top
-            	// ... that would show the previous month dates throught the hole week
-            	if(weekDayNum === 0){
-            		html += "<tr><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr>";
-            	}*/
-
             for(i = 0, j=weekDayNum + 1; i < days.length; i++, j++){
             	dd = days[i].getDate();
             	if(dd<10) dd='0'+dd;
@@ -226,8 +215,8 @@
 			    if (mm < 10) mm = '0' + mm;
 			    
 			    full = days[i].getFullYear() + "-" + mm + "-" + dd;
-
-			    if(Today(full))
+			    //Check if current date (in yyyy-MM-dd format) is today so the cell background is different
+			    if(isToday(full))
 				    style = "style='background:#FFCC99'";
 				else
 					style = "";
@@ -269,7 +258,6 @@
             aux = aux-aux2;
 
             if(aux2 > 0){
-            	console.log("IN");
             	while(aux2 > 0){
             		html += "<th></th>";
             		aux2 --;
@@ -310,85 +298,4 @@
            }
         }
 	});
-
-	//Returns a color for the event background
-	function getRandomEventColour () {
-		var colourArray = ['#ff748c', '#82cc68', '#fd8e2f', '#9700cc', '#cc9700', '#18498d', '#646472'],
-			latestColour = localStorage.getItem('colourIndex');
-
-		if(latestColour < colourArray.length - 1)
-			latestColour ++;
-		else
-			latestColour = 0;
-
-		localStorage.setItem('colourIndex', JSON.stringify(latestColour));
-		return colourArray[latestColour];
-	};
-
-	//Returns an Array containing all days of a specific month
-	function getMonthDays (month, year) {
-	   	var date = new Date(year, month, 1);
-	    var array = [];
-	    while (date.getMonth() === month) {
-	       array.push(new Date(date));
-	       date.setDate(date.getDate() + 1);
-	    }
-	    return array;
-	};
-
-	/*Returns the week day (0-6) of the first day of the current month 
-		so we know which day of the calendar the month starts*/
-	function getWeekDay (month, year) {
-	    var d = new Date(year, month, 1).getDay();
-		if(d === 0) d = 7;
-		d--;
-		return d;
-	};
-
-	/*Returns all the events stored in localStorage that are present in 
-		the selected 'day'/'month'/'year'*/
-	function getDayEvents (storage, day, month, year) {
-		var array = [];
-
-		for(var i = 0; i < storage.length; i++){
-            var from = new Date(storage[i].start),
-        		to = new Date(storage[i].end), 
-        		diff = storage[i].diff,
-        		fromDay = from.getDate(), fromMonth = from.getMonth(), fromYear = from.getFullYear(),
-        		toDay = to.getDate(), toMonth = to.getMonth(), toYear = to.getFullYear();
-
-        	if(isNaN(to.getTime()) && fromDay == day && fromMonth == month && fromYear == year){ //invalid 'to' date, so it is just one day event
-        		array.push({storage: storage[i], position: 'solo'}); //start
-        	} else {
-	        	if(fromDay == day && fromMonth == month && fromYear == year)
-	        		array.push({storage: storage[i], position: 'start'}); //start
-	        	else if(toDay == day && toMonth == month && toYear == year)
-	        		array.push({storage: storage[i], position: 'end'}); //end
-	        	else{ //centre
-	        		if(fromMonth == toMonth && fromMonth == month && day > fromDay && day < toDay && fromYear == year){ //all in same month
-	        			array.push({storage: storage[i], position: 'centre'});
-	        		} else if(day > fromDay && fromMonth == month && toMonth != month && !isNaN(to.getTime()) && fromYear == year){
-	        			array.push({storage: storage[i], position: 'centre'}); //current month is 'from'
-	        		} else if(day < toDay && toMonth == month && fromMonth != month && fromYear == year){
-	        			array.push({storage: storage[i], position: 'centre'}); //current month is 'to'
-	        		}
-	        	}
-        	}
-	    }
-
-		return array;
-	};
-
-	/*Compares today's day with the passed value which is a date in format 'yyyy-MM-dd'
-		and returns true if they are the same*/
-	function Today (value) {
-		var todayDay = ("0" + new Date().getDate()).slice(-2), //01-31
-		    todayMonth = ("0" + (new Date().getMonth() + 1)).slice(-2), //01-12
-		    todayYear = new Date().getFullYear(), //four digits
-		    finalDate = todayYear+'-'+todayMonth+'-'+todayDay;
-
-		if(value == finalDate) 
-			return true;
-		return false;
-	};
 })();

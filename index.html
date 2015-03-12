@@ -7,9 +7,9 @@
   <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
   <link rel="stylesheet" type="text/css" href="css/style.css" />
   <script type='text/javascript' src='js/jquery-1.11.1.js'></script>
-  <script type="text/javascript" src="js/angular.min.js"></script>
-  <script type="text/javascript" src="js/utils.js"></script>
+  <script type="text/javascript" src="js/angular.min.js"></script>  
   <script type="text/javascript" src="js/app.js"></script>
+  <script type="text/javascript" src="js/utils.js"></script>
 </head>
 <body ng-controller="CalendarController as calendar">
 	<header>
@@ -21,9 +21,9 @@
       <button class="btn-oldstyle btn-today" ng-click="calendar.showToday()">Today</button>
       <h2>{{monthName}} {{year}}</h2>
       <table calendartable></table>
-      <div id="event">
-        <div class="dateTitle"></div>
-        <div class="eventContent"></div>
+      <div id="event" name="eventsArea" ng-show="showEventsArea">
+        <div class="dateTitle" ng-model="eventsArea.title"></div>
+        <div class="eventContent" ng-model="eventsArea.content"></div>
       </div>
     </div>
     <div class="add_event" ng-class="{ 'edit_event' : actionLabel === 'Edit Event' }">
@@ -32,24 +32,24 @@
         <!-- Event Title -->
         <div class="form-group" ng-class="{ 'has-error' : showValidationMessages && CalendarEvent.eventTitle.$invalid && !CalendarEvent.eventTitle.$pristine }">
             <label>Title: *</label>
-            <input id="EventTitle" type="text" name="eventTitle" class="form-control" ng-model="CalendarEvent.title" maxlength="30" required>
+            <input id="EventTitle" type="text" class="form-control" ng-model="CalendarEvent.title" maxlength="30" required>
             <p ng-show="showValidationMessages && CalendarEvent.eventTitle.$invalid && !CalendarEvent.eventTitle.$pristine" class="help-block">A title is required.</p>
         </div>
         <!-- Event Description -->
         <div class="form-group">
             <label>Description:</label>
-            <textarea id="EventDescription" name="eventDescription" class="form-control" ng-model="CalendarEvent.description" rows="4" cols="50" maxlength="300"></textarea>
+            <textarea id="EventDescription" class="form-control" ng-model="CalendarEvent.description" rows="4" cols="50" maxlength="300"></textarea>
         </div>        
         <!-- Event Date From -->
         <div class="form-group" ng-class="{ 'has-error' : showValidationMessages && CalendarEvent.eventFrom.$invalid && !CalendarEvent.eventFrom.$pristine }">
             <label>From: *</label>
-            <input id="EventDateFrom" type="date" name="eventFrom" ng-model="CalendarEvent.from" class="form-control" required>
+            <input id="EventDateFrom" type="date" ng-model="CalendarEvent.from" class="form-control" min="{{today}}" required>
             <p ng-show="showValidationMessages && CalendarEvent.eventFrom.$invalid && !CalendarEvent.eventFrom.$pristine" class="help-block">This date is required.</p>
         </div>
         <!--Event Date To -->
          <div class="form-group">
             <label>To:</label>
-            <input id="EventDateTo" type="date" name="eventTo" ng-model="CalendarEvent.to" class="form-control">
+            <input id="EventDateTo" type="date" ng-model="CalendarEvent.to" class="form-control" min="{{today}}">
         </div>
         <!-- Submit Form -->
         <button type="submit" class="btn-custom" ng-class="{ 'btn-edit' : actionLabel === 'Edit Event' }" ng-click="action(CalendarEvent)" ng-disabled="CalendarEvent.$invalid">{{actionLabel}}</button>
