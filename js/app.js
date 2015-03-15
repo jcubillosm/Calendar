@@ -14,6 +14,7 @@
         localStorage.setItem('data', JSON.stringify(scope.local));
         scope.event_ID = null;
         scope.showValidationMessages = true;
+        scope.wrongDateEnd = false;
         scope.today = new Date().yyyymmdd();
 
 		/*Gives functionality to "Next" and "Previous" buttons
@@ -112,7 +113,11 @@
 		scope.clearForm = function () {
 			scope.changeActionTo('addEvent');
 			scope.showValidationMessages = false;
-			$scope.CalendarEvent = {};
+			scope.wrongDateEnd = false;
+			scope.CalendarEvent.title = "";
+			scope.CalendarEvent.description = "";
+			scope.CalendarEvent.from = null;
+  			scope.CalendarEvent.to = null;
 		};
 
 		//form actions: add or edit events
@@ -120,20 +125,25 @@
 	        addEvent: function (CalendarEvent) {
 	            var from = CalendarEvent.from != null ? CalendarEvent.from.yyyymmdd() : '',
 	        		to = CalendarEvent.to != null ? CalendarEvent.to.yyyymmdd() : '',
-	        		title = CalendarEvent.title,
-	        		content = CalendarEvent.description,
-					timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
-					diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
-					latestID = !$scope.local.length ? 0 : $scope.local[$scope.local.length-1].id;
-					latestID++;
+	        		title = CalendarEvent.title;
 
-					if(title == "" || from == "") return;
+	        	if(title == "" || from == "" || !DateCheck(from, to)) {
+	        		scope.wrongDateEnd = true;
+	        		return;
+	        	} else {
+	        		var	content = CalendarEvent.description,
+						timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
+						diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
+						latestID = !$scope.local.length ? 0 : $scope.local[$scope.local.length-1].id;
+						latestID++;
+					
 					if(to === from) to = '';
 
-	        	//save data localy in localStorage
-		        $scope.local.push({id: latestID, text: title, description: content, start: from, end: to, diff: diffDays, backColor: getRandomEventColour()});
-				localStorage.setItem('data', JSON.stringify($scope.local));
-				scope.clearForm();
+		        	//save data localy in localStorage
+			        $scope.local.push({id: latestID, text: title, description: content, start: from, end: to, diff: diffDays, backColor: getRandomEventColour()});
+					localStorage.setItem('data', JSON.stringify($scope.local));
+					scope.clearForm();
+	        	}	        	
 	        },
 	        editEvent: function (CalendarEvent) {	        	
 	        	var eventID = scope.event_ID;
@@ -142,28 +152,34 @@
 	        	if(eventID != null) {
 		        	var from = CalendarEvent.from != null ? CalendarEvent.from.yyyymmdd() : '',
 		        		to = CalendarEvent.to != null ? CalendarEvent.to.yyyymmdd() : '',
-		        		title = CalendarEvent.title,
-		        		content = CalendarEvent.description,
-						timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
-						diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
-						storage = $scope.local;
+		        		title = CalendarEvent.title;
 
-					if(to === from) to = '';
+		        	if(title == "" || from == "" || !DateCheck(from, to)) {
+		        		scope.wrongDateEnd = true;
+		        		return;
+		        	} else {
+		        		var content = CalendarEvent.description,
+							timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
+							diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
+							storage = $scope.local;
 
-					for(var i=0; i<storage.length; i++){
-						if(storage[i].id === eventID){
-							storage[i].text = title;
-							storage[i].description = content;
-							storage[i].start = from;
-							storage[i].end = to;
-							storage[i].diff = diffDays;
-							break;
+						if(to === from) to = '';
+
+						for(var i=0; i<storage.length; i++){
+							if(storage[i].id === eventID){
+								storage[i].text = title;
+								storage[i].description = content;
+								storage[i].start = from;
+								storage[i].end = to;
+								storage[i].diff = diffDays;
+								break;
+							}
 						}
-					}
-					//we finally store the new JSON with the edited values
-					localStorage.setItem('data', JSON.stringify(storage));    
-					scope.showEvent(eventID);
-					scope.event_ID = null;   
+						//we finally store the new JSON with the edited values
+						localStorage.setItem('data', JSON.stringify(storage));    
+						scope.showEvent(eventID);
+						scope.event_ID = null;  
+					} 
 				}
 				//Reseting the form				
 				scope.clearForm();

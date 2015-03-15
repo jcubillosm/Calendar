@@ -85,3 +85,13 @@ function isToday (value) {
 		return true;
 	return false;
 };
+
+//Checks if final event date is bigger than the starting date, if not it returns false
+function DateCheck (dateStart, dateEnd) {
+  	var eDate = new Date(dateEnd),
+  		sDate = new Date(dateStart);
+  		
+	if(dateStart != '' && dateEnd != '' && sDate > eDate) 
+	    return false;
+	return true;
+};
