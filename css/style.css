@@ -187,3 +187,8 @@ button[type=submit] {
 	margin-top: 10px;
 	padding: 5px 0;
 }
+
+button.backform {
+	float: left;
+	font-weight: bold;
+}

@@ -14,8 +14,7 @@
         localStorage.setItem('data', JSON.stringify(scope.local));
         scope.event_ID = null;
         scope.showValidationMessages = true;
-        scope.wrongDateEnd = false;
-        scope.today = new Date().yyyymmdd();
+        scope.wrongDateEnd = false;        
 
 		/*Gives functionality to "Next" and "Previous" buttons
 			changing current month and year values*/

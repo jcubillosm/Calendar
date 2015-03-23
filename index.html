@@ -26,7 +26,7 @@
         <div class="eventContent" ng-model="eventsArea.content"></div>
       </div>
     </div>
-    <div class="add_event" ng-class="{ 'edit_event' : actionLabel === 'Edit Event' }">
+    <div class="add_event" ng-class="{ 'edit_event' : actionLabel === 'Edit Event' }">      
       <h2>{{actionLabel}}</h2>
       <form name="CalendarEvent" novalidate>
         <!-- Event Title -->
@@ -43,18 +43,19 @@
         <!-- Event Date From -->
         <div class="form-group" ng-class="{ 'has-error' : showValidationMessages && CalendarEvent.eventFrom.$invalid && !CalendarEvent.eventFrom.$pristine }">
             <label>From: *</label>
-            <input id="EventDateFrom" type="date" name="eventFrom" ng-model="CalendarEvent.from" class="form-control" min="{{today}}" required>
+            <input id="EventDateFrom" type="date" name="eventFrom" ng-model="CalendarEvent.from" class="form-control" required>
             <p ng-show="showValidationMessages && CalendarEvent.eventFrom.$invalid && !CalendarEvent.eventFrom.$pristine" class="help-block">This date is required.</p>
         </div>
         <!--Event Date To -->
          <div class="form-group" ng-class="{ 'has-error' : wrongDateEnd}">
             <label>To:</label>
-            <input id="EventDateTo" type="date" ng-model="CalendarEvent.to" class="form-control" min="{{today}}">
+            <input id="EventDateTo" type="date" ng-model="CalendarEvent.to" class="form-control">
             <p ng-show="wrongDateEnd" class="help-block">Please ensure that the End Date is greater than or equal to the Start Date.</p>
         </div>
         <!-- Submit Form -->
         <button type="submit" class="btn-custom" ng-class="{ 'btn-edit' : actionLabel === 'Edit Event' }" ng-click="action(CalendarEvent)" ng-disabled="CalendarEvent.$invalid">{{actionLabel}}</button>
         <p>* Required fields</p>
+        <button class="btn btn-link btn-sm backform" ng-hide="actionLabel != 'Edit Event'" ng-click="clearForm()">< Back to Add Event form</button>
       </form>
     </div>
 </body>
