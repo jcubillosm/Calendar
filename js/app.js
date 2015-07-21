@@ -48,28 +48,28 @@ app.controller('CalendarController', function ($scope, $compile, $location, $anc
 	//Function to show the event information in a div under the calendar
 	scope.showEvent = function (eventID) {
 		scope.clearForm();
-		for(var i=0; i < $scope.local.length; i++){
-			if($scope.local[i].id == eventID){
+		for(var i=0; i < scope.local.length; i++){
+			if(scope.local[i].id == eventID){
 				//clean previous content
 				angular.element('div#event .dateTitle').empty();
 				angular.element('div#event .eventContent').empty();
 				//set same background colour as event colour
-				angular.element('div#event').css('background', $scope.local[i].backColor);
+				angular.element('div#event').css('background', scope.local[i].backColor);
 				//get start and end dates in dd/mm/yyyy format
-				var title = $scope.local[i].text,
-					startDate = $scope.local[i].start.split('-'),
-					endDate = $scope.local[i].end.split('-');						
+				var title = scope.local[i].text,
+					startDate = scope.local[i].start.split('-'),
+					endDate = scope.local[i].end.split('-');						
 				startDate = startDate[2] + '/' + startDate[1] +'/' + startDate[0];					
 				if(endDate != '')
 					endDate = ' to ' + endDate[2] + '/' + endDate[1] +'/' + endDate[0];					
 				//append event data + option buttons and exit the loop					
-				angular.element('div#event .dateTitle').append($compile('<div class="eventButtons"><button class="btn-custom" ng-click="calendar.editEvent('+$scope.local[i].id+')">Edit</button><button class="btn-delete" ng-click="calendar.removeEvent('+$scope.local[i].id+')">Delete</button></div>')($scope));
+				angular.element('div#event .dateTitle').append($compile('<div class="eventButtons"><button class="btn-custom" ng-click="calendar.editEvent('+scope.local[i].id+')">Edit</button><button class="btn-delete" ng-click="calendar.removeEvent('+scope.local[i].id+')">Delete</button></div>')(scope));
 				angular.element('div#event .dateTitle').append(title + '<br>' + startDate + endDate);
-				angular.element('div#event .eventContent').append($scope.local[i].description);
+				angular.element('div#event .eventContent').append(scope.local[i].description);
 				break;
 			}
 		}
-		$scope.showEventsArea = true;
+		scope.showEventsArea = true;
 		// set the location.hash to the id of the element you wish to scroll to.
       	$location.hash('event');
       	$anchorScroll();
@@ -78,7 +78,7 @@ app.controller('CalendarController', function ($scope, $compile, $location, $anc
 	//Removes the event from our localStorage item and hides the events div area
 	this.removeEvent = function (eventID) {
 		scope.clearForm();
-		var storage = $scope.local;
+		var storage = scope.local;
 
 		for(var i=0; i<storage.length; i++){
 			if(storage[i].id === eventID){
@@ -88,12 +88,12 @@ app.controller('CalendarController', function ($scope, $compile, $location, $anc
 		}
 
 		localStorage.setItem('data', JSON.stringify(storage));
-			$scope.showEventsArea = false;
+			scope.showEventsArea = false;
 	};
 
 	//Edit the event from our localStorage item
 	this.editEvent = function (eventID) {
-		var storage = $scope.local;
+		var storage = scope.local;
 		scope.event_ID = eventID;
 		
 		for(var i=0; i<storage.length; i++){
@@ -134,14 +134,14 @@ app.controller('CalendarController', function ($scope, $compile, $location, $anc
         		var	content = CalendarEvent.description,
 					timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
 					diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
-					latestID = !$scope.local.length ? 0 : $scope.local[$scope.local.length-1].id;
+					latestID = !scope.local.length ? 0 : scope.local[scope.local.length-1].id;
 					latestID++;
 				
 				if(to === from) to = '';
 
 	        	//save data localy in localStorage
-		        $scope.local.push({id: latestID, text: title, description: content, start: from, end: to, diff: diffDays, backColor: getRandomEventColour()});
-				localStorage.setItem('data', JSON.stringify($scope.local));
+		        scope.local.push({id: latestID, text: title, description: content, start: from, end: to, diff: diffDays, backColor: getRandomEventColour()});
+				localStorage.setItem('data', JSON.stringify(scope.local));
 				scope.clearForm();
         	}	        	
         },
@@ -161,7 +161,7 @@ app.controller('CalendarController', function ($scope, $compile, $location, $anc
 	        		var content = CalendarEvent.description,
 						timeDiff = (from != '' && to != '') ? Math.abs(CalendarEvent.to.getTime() - CalendarEvent.from.getTime()) : '',
 						diffDays = (timeDiff != '') ? Math.ceil(timeDiff / (1000 * 3600 * 24)) - 1 : '',
-						storage = $scope.local;
+						storage = scope.local;
 
 					if(to === from) to = '';
 
